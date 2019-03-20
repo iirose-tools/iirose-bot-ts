@@ -23,6 +23,7 @@
     "fix:tslint": "tslint --fix --project .",
     "watch": "run-s clean build && run-s \"build -- -w\"",
     "commit": "git-cz",
+    "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test"
   },
@@ -31,6 +32,7 @@
     "build": "Clean and rebuild the project",
     "fix": "Try to automatically fix any linting problems",
     "watch": "Watch and rebuild the project on save",
+    "version": "Bump package.json version, update CHANGELOG.md, tag release",
     "reset": "Delete all untracked files and reset the repo to the last commit"
   },
   "engines": {
@@ -50,6 +52,7 @@
     "npm-run-all": "^4.1.5",
     "opn-cli": "^4.0.0",
     "prettier": "^1.15.2",
+    "standard-version": "^5.0.2",
     "trash-cli": "^1.4.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.17.0",
