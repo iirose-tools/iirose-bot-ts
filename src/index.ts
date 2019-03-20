@@ -1,0 +1,1 @@
+export { iiroseBot } from './bot';

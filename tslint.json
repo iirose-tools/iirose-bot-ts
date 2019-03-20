@@ -1,0 +1,20 @@
+{
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "cyclomatic-complexity": true,
+    "interface-name": [true, "never-prefix"],
+    "member-access": false,
+    "no-console": [true, "log"],
+    "no-implicit-dependencies": [true, "dev"],
+    "no-parameter-reassignment": true,
+    "object-literal-sort-keys": false,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"],
+    "semicolon": [true, "always"],
+    "trailing-comma": [
+      true,
+      { "multiline": "never", "singleline": "never" }
+    ],
+    "type-literal-delimiter": true,
+    "typedef": [true, "call-signature", "property-declaration"]
+  }
+}

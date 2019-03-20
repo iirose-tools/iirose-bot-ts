@@ -1,0 +1,9 @@
+src
+test
+tsconfig.json
+tslint.json
+.prettierignore
+.vscode
+build/docs
+**/*.spec.*
+*.log
