@@ -36,7 +36,6 @@ type UserData = Readonly<{
     gender: UserGender;
     state?: UserState;
     rank?: UserRank;
-    coverImage?: string;
 }>;
 
 export type User = Readonly<ReturnType<typeof createUser>>;

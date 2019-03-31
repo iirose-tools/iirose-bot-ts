@@ -1,8 +1,9 @@
 import { Bot } from '../bot';
+import { Event } from '../events';
 import { parseRoomUpdates } from './room';
 import { parseUserUpdates } from './user';
 
-export const parseUpdates = (bot: Bot, data: string) => {
+export const parseUpdates = (bot: Bot, data: string): Event[] => {
     if (data[0] === '%') {
         if (data[1] === '*') {
             const [
