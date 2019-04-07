@@ -47,11 +47,13 @@ const parseMessage = (bot: Bot, data: string) => {
         username: decodeEntities(username),
         color: decodeEntities(userColor),
         gender: USER_GENDERS[parseInt(gender, 10)] || 'NONE',
-        rank: USER_RANKS[parseInt(rank[0], 10)] || 'OTHER',
-        ...(coverImage.length === 0
-            ? {}
-            : { coverImage: decodeEntities(coverImage) })
+        rank: USER_RANKS[parseInt(rank[0], 10)] || 'OTHER'
     };
+
+    const otherAttributes =
+        coverImage.length === 0
+            ? {}
+            : { coverImage: decodeEntities(coverImage) };
 
     if (text[0] === "'") {
         switch (text[1]) {
@@ -59,6 +61,7 @@ const parseMessage = (bot: Bot, data: string) => {
                 return userJoinEvent({
                     user: createUser({
                         ...userAttributes,
+                        ...otherAttributes,
                         roomId: bot.roomId()
                     })
                 });
@@ -66,13 +69,17 @@ const parseMessage = (bot: Bot, data: string) => {
             case '2':
                 const roomId = text.substr(2);
                 return userSwitchRoomEvent({
-                    user: createUser({ ...userAttributes, roomId }),
+                    user: createUser({
+                        ...userAttributes,
+                        ...otherAttributes,
+                        roomId
+                    }),
                     targetRoomId: roomId
                 });
 
             case '3':
                 return userLeaveEvent({
-                    user: createUser({ ...userAttributes })
+                    user: createUser({ ...userAttributes, ...otherAttributes })
                 });
 
             default:
