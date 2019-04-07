@@ -12,19 +12,33 @@ type BotData = Readonly<{
     color: string;
     roomId: () => string;
 
-    awaitEvent: (
-        checker: (event: Event) => boolean,
-        timeout?: number
-    ) => Promise<Event | null>;
+    awaitEvent: <
+        C extends Event['type'] | ((event: Event) => boolean),
+        T extends number | undefined = undefined
+    >(
+        checker: C,
+        timeout?: T
+    ) => Promise<
+        (T extends undefined ? never : null) extends infer N
+            ? C extends Event['type']
+                ? EventTypeOf<C> | N
+                : Event | N
+            : never
+    >;
 
     on: <T extends Event['type']>(
         type: T,
         handler: (event: EventTypeOf<T>) => any
     ) => void;
 
-    switchRoom: (targetRoomId: string) => Promise<void>;
+    switchRoom: (
+        targetRoomId: string,
+        roomPassword?: string | undefined
+    ) => Promise<void>;
 
     subscribe: (listener: (event: Event) => any) => () => void;
+
+    stop: () => Promise<void>;
 }>;
 
 export const iiroseBot = async ({
@@ -42,16 +56,25 @@ export const iiroseBot = async ({
 
     let botRoomId = roomId;
 
+    const onStart = async () => {
+        await bot.login(username, password, botRoomId);
+        await bot.awaitEvent(
+            event =>
+                event.type === 'UPDATE_ROOM_STORE' ||
+                event.type === 'UPDATE_USER_STORE'
+        );
+    };
+
     const onMessage = async (content: string) => {
         const oldRoomId = botRoomId;
         const events = parseEvents(bot, content);
 
-        for (const handler of handlers) {
+        for (const event of events) {
             if (botRoomId !== oldRoomId) {
                 break;
             }
 
-            for (const event of events) {
+            for (const handler of handlers) {
                 await handler(event);
             }
         }
@@ -60,12 +83,13 @@ export const iiroseBot = async ({
     const onError = (err: Error) => console.error(err);
 
     const botClient = await client(onMessage, onError);
+    const botApi = api(botClient);
 
     const { updateUsersHandler, api: userStoreApi } = userStore();
     const { updateRoomsHandler, api: roomStoreApi } = roomStore();
 
-    const bot = {
-        ...api(botClient),
+    const bot: Bot = {
+        ...botApi,
 
         ...userStoreApi,
         ...roomStoreApi,
@@ -74,11 +98,19 @@ export const iiroseBot = async ({
         color,
         roomId: () => botRoomId,
 
+        // @ts-ignore
         awaitEvent: async (
-            checker: (event: Event) => boolean,
+            checker: Event['type'] | ((event: Event) => boolean),
             timeout?: number
         ) => {
             let unsubscribe: () => void;
+
+            if (typeof checker !== 'function') {
+                return bot.awaitEvent(
+                    (event: Event) => event.type === checker,
+                    timeout
+                );
+            }
 
             const awaitPromise = new Promise<Event>(resolve => {
                 unsubscribe = bot.subscribe(event => {
@@ -109,19 +141,21 @@ export const iiroseBot = async ({
             type: T,
             handler: (event: EventTypeOf<T>) => any
         ) => {
-            bot.subscribe(event => {
+            bot.subscribe(async event => {
                 if (event.type === type) {
                     // @ts-ignore
-                    handler(event);
+                    await handler(event);
                 }
             });
         },
 
-        switchRoom: async (targetRoomId: string) => {
+        switchRoom: async (targetRoomId: string, roomPassword?: string) => {
             botRoomId = targetRoomId;
 
+            await botApi.switchRoom(targetRoomId, roomPassword);
             await botClient.restart();
-            await bot.login(username, password, botRoomId);
+
+            await onStart();
         },
 
         subscribe: (handler: (event: Event) => any) => {
@@ -140,7 +174,7 @@ export const iiroseBot = async ({
     bot.subscribe(updateUsersHandler);
     bot.subscribe(updateRoomsHandler);
 
-    await bot.login(username, password, botRoomId);
+    await onStart();
 
     return bot;
 };
