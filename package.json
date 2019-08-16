@@ -34,22 +34,22 @@
   },
   "dependencies": {
     "html-entities": "^1.2.1",
-    "pako": "^1.0.8",
-    "ws": "^6.1.4"
+    "pako": "^1.0.10",
+    "ws": "^7.1.2"
   },
   "devDependencies": {
     "@types/html-entities": "^1.2.16",
-    "@types/pako": "^1.0.0",
-    "@types/ws": "^6.0.1",
-    "commitizen": "^3.0.7",
-    "cz-conventional-changelog": "^2.1.0",
+    "@types/pako": "^1.0.1",
+    "@types/ws": "^6.0.2",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.0.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^1.15.2",
-    "standard-version": "^5.0.2",
-    "trash-cli": "^1.4.0",
-    "tslint": "^5.11.0",
-    "tslint-config-prettier": "^1.17.0",
-    "typescript": "^3.2.4"
+    "prettier": "^1.18.2",
+    "standard-version": "^7.0.0",
+    "trash-cli": "^3.0.0",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.5.3"
   },
   "config": {
     "commitizen": {
