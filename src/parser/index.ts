@@ -5,7 +5,7 @@ import { parseSwitchRoom } from './switch-room';
 import { parseUpdates } from './update';
 
 export const parseEvents = (bot: Bot, data: string): Event[] => [
-    ...parseSwitchRoom(data),
-    ...parseUpdates(bot, data),
-    ...parseMessages(bot, data)
+  ...parseSwitchRoom(data),
+  ...parseUpdates(bot, data),
+  ...parseMessages(bot, data)
 ];

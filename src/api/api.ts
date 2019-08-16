@@ -8,8 +8,8 @@ import { userApi } from './user';
 export type Api = Readonly<ReturnType<typeof api>>;
 
 export const api = (client: Client) => ({
-    ...authApi(client),
-    ...messageApi(client),
-    ...roomApi(client),
-    ...userApi(client)
+  ...authApi(client),
+  ...messageApi(client),
+  ...roomApi(client),
+  ...userApi(client)
 });

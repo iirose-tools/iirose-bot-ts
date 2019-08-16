@@ -2,9 +2,9 @@ import { Room, User } from '../data';
 import { createEvent } from './event';
 
 export const updateRoomStoreEvent = createEvent('UPDATE_ROOM_STORE')<{
-    rooms: ReadonlyArray<Room>;
+  rooms: ReadonlyArray<Room>;
 }>();
 
 export const updateUserStoreEvent = createEvent('UPDATE_USER_STORE')<{
-    users: ReadonlyArray<User>;
+  users: ReadonlyArray<User>;
 }>();
