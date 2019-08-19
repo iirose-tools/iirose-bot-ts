@@ -4,6 +4,7 @@ tsconfig.json
 tslint.json
 .prettierignore
 .vscode
+.idea
 build/docs
 **/*.spec.*
 *.log
