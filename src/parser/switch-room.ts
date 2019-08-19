@@ -1,6 +1,6 @@
 import { botSwitchRoomEvent, Event } from '../events';
 
-export const parseSwitchRoom = (data: string): Event[] => {
+export function* parseSwitchRoom(data: string): IterableIterator<Event> {
   let roomId;
 
   if (/^-\*/.test(data)) {
@@ -8,8 +8,8 @@ export const parseSwitchRoom = (data: string): Event[] => {
   } else if (/^%\*"s/.test(data)) {
     roomId = data.substr(4).split('>')[0];
   } else {
-    return [];
+    return;
   }
 
-  return [botSwitchRoomEvent({ targetRoomId: roomId })];
-};
+  yield botSwitchRoomEvent({ targetRoomId: roomId });
+}

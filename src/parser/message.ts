@@ -10,22 +10,21 @@ import {
 import { decodeEntities, regexScan } from '../utils';
 import { USER_GENDERS, USER_RANKS } from './constants';
 
-export const parseMessages = (bot: Bot, data: string): Event[] => {
+export function* parseMessages(
+  bot: Bot,
+  data: string
+): IterableIterator<Event> {
   if (/^\d/.test(data)) {
     const messagesData = data.split('"')[0];
-    return messagesData
-      .split('<')
-      .reduceRight<Event[]>((array, messageData) => {
-        const message = parseMessage(bot, messageData);
+    const messages = messagesData.split('<').reverse();
 
-        return message === null ? array : [...array, message];
-      }, []);
+    for (const messageData of messages) {
+      yield* parseMessage(bot, messageData);
+    }
   }
+}
 
-  return [];
-};
-
-const parseMessage = (bot: Bot, data: string) => {
+function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
   const [
     timestamp,
     avatar,
@@ -56,17 +55,18 @@ const parseMessage = (bot: Bot, data: string) => {
   if (text[0] === "'") {
     switch (text[1]) {
       case '1':
-        return userJoinEvent({
+        yield userJoinEvent({
           user: createUser({
             ...userAttributes,
             ...otherAttributes,
             roomId: bot.roomId()
           })
         });
+        break;
 
       case '2':
         const roomId = text.substr(2);
-        return userSwitchRoomEvent({
+        yield userSwitchRoomEvent({
           user: createUser({
             ...userAttributes,
             ...otherAttributes,
@@ -74,14 +74,13 @@ const parseMessage = (bot: Bot, data: string) => {
           }),
           targetRoomId: roomId
         });
+        break;
 
       case '3':
-        return userLeaveEvent({
+        yield userLeaveEvent({
           user: createUser({ ...userAttributes, ...otherAttributes })
         });
-
-      default:
-        return null;
+        break;
     }
   } else {
     const rawContent = decodeEntities(text);
@@ -123,6 +122,6 @@ const parseMessage = (bot: Bot, data: string) => {
       referredMessages
     });
 
-    return publicMessageEvent({ message });
+    yield publicMessageEvent({ message });
   }
-};
+}

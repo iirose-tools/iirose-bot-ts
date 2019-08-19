@@ -4,8 +4,8 @@ import { parseMessages } from './message';
 import { parseSwitchRoom } from './switch-room';
 import { parseUpdates } from './update';
 
-export const parseEvents = (bot: Bot, data: string): Event[] => [
-  ...parseSwitchRoom(data),
-  ...parseUpdates(bot, data),
-  ...parseMessages(bot, data)
-];
+export function* parseEvents(bot: Bot, data: string): IterableIterator<Event> {
+  yield* parseSwitchRoom(data);
+  yield* parseUpdates(bot, data);
+  yield* parseMessages(bot, data);
+}

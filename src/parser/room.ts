@@ -9,33 +9,39 @@ import {
   USER_GENDERS
 } from './constants';
 
-export const parseRoomUpdates = (bot: Bot, data: string): Event[] => {
-  if (!data) {
-    return [];
-  }
+export function* parseRoomUpdates(
+  bot: Bot,
+  data: string
+): IterableIterator<Event> {
+  if (data) {
+    const rooms = data.split('<').map(roomData => {
+      const [
+        path,
+        name,
+        color,
+        attributes,
+        protectionNum,
+        info
+      ] = roomData.split('>');
 
-  const rooms = data.split('<').map(roomData => {
-    const [path, name, color, attributes, protectionNum, info] = roomData.split(
-      '>'
-    );
+      const pathArray = path.split('_');
+      const id = pathArray[pathArray.length - 1];
 
-    const pathArray = path.split('_');
-    const id = pathArray[pathArray.length - 1];
-
-    return createRoom({
-      bot,
-      id,
-      path,
-      name: decodeEntities(name),
-      color: decodeEntities(color),
-      protection: ROOM_PROTECTIONS[protectionNum] || 'OPEN',
-      ...parseRoomAttributes(attributes),
-      ...parseRoomInfo(info)
+      return createRoom({
+        bot,
+        id,
+        path,
+        name: decodeEntities(name),
+        color: decodeEntities(color),
+        protection: ROOM_PROTECTIONS[protectionNum] || 'OPEN',
+        ...parseRoomAttributes(attributes),
+        ...parseRoomInfo(info)
+      });
     });
-  });
 
-  return [updateRoomStoreEvent({ rooms })];
-};
+    yield updateRoomStoreEvent({ rooms });
+  }
+}
 
 const parseRoomAttributes = (data: string) => {
   const [type, weather, rolePlay, language] = data;

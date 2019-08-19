@@ -3,7 +3,7 @@ import { Event } from '../events';
 import { parseRoomUpdates } from './room';
 import { parseUserUpdates } from './user';
 
-export const parseUpdates = (bot: Bot, data: string): Event[] => {
+export function* parseUpdates(bot: Bot, data: string): IterableIterator<Event> {
   if (data[0] === '%') {
     if (data[1] === '*') {
       const [
@@ -15,12 +15,8 @@ export const parseUpdates = (bot: Bot, data: string): Event[] => {
 
       const [userData, roomData] = userRoomData.split("'");
 
-      return [
-        ...parseUserUpdates(bot, userData),
-        ...parseRoomUpdates(bot, roomData)
-      ];
+      yield* parseUserUpdates(bot, userData);
+      yield* parseRoomUpdates(bot, roomData);
     }
   }
-
-  return [];
-};
+}
