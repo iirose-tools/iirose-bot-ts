@@ -1,7 +1,7 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 import { createUser } from '../data';
 import { Event, updateUserStoreEvent } from '../events';
-import { decodeEntities } from '../utils';
+import { decodeEntities } from '../utils/entities';
 import { USER_GENDERS, USER_STATES } from './constants';
 
 export function* parseUserUpdates(

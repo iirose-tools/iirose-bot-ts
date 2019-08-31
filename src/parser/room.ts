@@ -1,7 +1,7 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 import { createRoom } from '../data';
 import { Event, updateRoomStoreEvent } from '../events';
-import { decodeEntities } from '../utils';
+import { decodeEntities } from '../utils/entities';
 import {
   ROOM_LANGUAGES,
   ROOM_PROTECTIONS,

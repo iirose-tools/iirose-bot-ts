@@ -1,4 +1,4 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 
 export type UserGender = 'NONE' | 'MALE' | 'FEMALE' | 'COUPLE';
 export type UserRank =

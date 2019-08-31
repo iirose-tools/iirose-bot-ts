@@ -1,4 +1,4 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 import { Event } from '../events';
 import { parseRoomUpdates } from './room';
 import { parseUserUpdates } from './user';

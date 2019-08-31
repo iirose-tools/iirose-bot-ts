@@ -1,4 +1,4 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 import { UserGender } from './user';
 
 export type RoomProtection =

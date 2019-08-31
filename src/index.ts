@@ -1,1 +1,1 @@
-export { iiroseBot } from './bot';
+export { Bot as IIRoseBot } from './Bot';

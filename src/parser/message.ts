@@ -1,4 +1,4 @@
-import { Bot } from '../bot';
+import { Bot } from '../Bot';
 import { createPublicMessage, createUser } from '../data';
 import {
   Event,
@@ -7,7 +7,8 @@ import {
   userLeaveEvent,
   userSwitchRoomEvent
 } from '../events';
-import { decodeEntities, regexScan } from '../utils';
+import { decodeEntities } from '../utils/entities';
+import { regexScan } from '../utils/regexScan';
 import { USER_GENDERS, USER_RANKS } from './constants';
 
 export function* parseMessages(
@@ -59,7 +60,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
           user: createUser({
             ...userAttributes,
             ...otherAttributes,
-            roomId: bot.roomId()
+            roomId: bot.roomId
           })
         });
         break;
@@ -109,7 +110,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
     const user = createUser({
       bot,
       ...userAttributes,
-      roomId: bot.roomId()
+      roomId: bot.roomId
     });
 
     const message = createPublicMessage({
