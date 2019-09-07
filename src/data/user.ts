@@ -53,5 +53,6 @@ export const createUser = (data: { bot: Bot } & UserData) => ({
 
   unfollow: async () => data.bot.unfollowUser(data.username),
 
-  pm: (content: string) => data.bot.createPm(data.id, content, data.bot.color)
+  pm: (content: string) =>
+    data.bot.sendPm({ userId: data.id, color: data.bot.color, content })
 });
