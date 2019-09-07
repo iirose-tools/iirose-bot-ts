@@ -50,7 +50,7 @@
     "trash-cli": "^1.4.0",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.2"
   },
   "config": {
     "commitizen": {
