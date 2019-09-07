@@ -32,7 +32,8 @@ export class Bot extends WithServices(
   public readonly roomId: string;
   public readonly color: string;
 
-  private readonly client: Client;
+  protected readonly client: Client;
+
   private readonly messageSubject: Subject<string>;
   private handlers: Array<(event: Event) => any>;
 
