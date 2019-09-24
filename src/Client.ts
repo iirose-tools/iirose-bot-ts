@@ -1,8 +1,15 @@
 import pako from 'pako';
-import { BehaviorSubject, defer, identity, interval, noop } from 'rxjs';
+import {
+  BehaviorSubject,
+  defer,
+  identity,
+  interval,
+  throwError,
+  timer
+} from 'rxjs';
 import {
   flatMap,
-  retry,
+  retryWhen,
   skipWhile,
   take,
   takeWhile,
@@ -15,23 +22,75 @@ export class Client {
   private webSocketSubject!: WebSocketSubject<string>;
   private readonly connectionSubject: BehaviorSubject<boolean>;
 
+  private shouldReconnect: boolean;
+
   constructor(
+    private onStartCallback: () => void | Promise<void>,
     private onMessageCallback: (content: string) => void,
     private onErrorCallback: (err: Error) => void
   ) {
+    this.shouldReconnect = false;
     this.connectionSubject = new BehaviorSubject<boolean>(false);
   }
 
   public async start(): Promise<void> {
     return new Promise((resolve, reject) => {
+      defer(() => this.tryStart())
+        .pipe(
+          retryWhen(errors =>
+            errors.pipe(
+              flatMap((error, index) =>
+                index > 5 ? throwError(error) : timer((index + 1) * 5000)
+              )
+            )
+          )
+        )
+        .subscribe(resolve, reject);
+    });
+  }
+
+  public async send(data: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.connectionSubject
+        .pipe(
+          skipWhile(connected => !connected),
+          take(1),
+          timeout(5000)
+        )
+        .subscribe(() => this.webSocketSubject.next(data), reject, resolve);
+    });
+  }
+
+  public close(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.shouldReconnect = false;
+      const connection = this.connectionSubject.value;
+
+      if (connection && !this.webSocketSubject.closed) {
+        this.webSocketSubject.complete();
+        this.connectionSubject
+          .pipe(
+            skipWhile(connected => connected),
+            take(1),
+            timeout(5000)
+          )
+          .subscribe(() => resolve(), reject);
+      }
+    });
+  }
+
+  private async tryStart(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.shouldReconnect = true;
       this.webSocketSubject = webSocket({
         url: 'wss://m.iirose.com:443',
         binaryType: 'arraybuffer',
         WebSocketCtor: WebSocket,
         openObserver: {
-          next: () => {
+          next: async () => {
             this.connectionSubject.next(true);
             this.heartbeat();
+            await this.onStartCallback();
             resolve();
           }
         },
@@ -48,18 +107,6 @@ export class Client {
     });
   }
 
-  public async send(data: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.connectionSubject
-        .pipe(
-          skipWhile(connected => !connected),
-          take(1),
-          timeout(5000)
-        )
-        .subscribe(() => this.webSocketSubject.next(data), reject, resolve);
-    });
-  }
-
   private onMessage(data: string): void {
     this.connectionSubject.next(true);
     this.onMessageCallback(data);
@@ -71,11 +118,15 @@ export class Client {
   }
 
   private onClose(): void {
-    this.connectionSubject.next(false);
+    // Handled by promise rejection if never started.
+    const hasStarted = this.connectionSubject.value;
+    if (hasStarted) {
+      this.connectionSubject.next(false);
 
-    defer(this.start)
-      .pipe(retry(3))
-      .subscribe(noop, this.onErrorCallback);
+      if (this.shouldReconnect) {
+        this.start();
+      }
+    }
   }
 
   private heartbeat(): void {

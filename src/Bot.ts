@@ -29,7 +29,7 @@ export class Bot extends WithServices(
 ) {
   public readonly username: string;
   private readonly password: string;
-  public readonly roomId: string;
+  public roomId: string;
   public readonly color: string;
 
   protected readonly client: Client;
@@ -40,6 +40,7 @@ export class Bot extends WithServices(
   constructor(options: BaseBotOptions) {
     const messageSubject = new Subject<string>();
     const client = new Client(
+      () => this.onStart(),
       message => messageSubject.next(message),
       error => console.error(error)
     );
@@ -57,27 +58,17 @@ export class Bot extends WithServices(
   }
 
   public async start(): Promise<void> {
-    await this.client.start();
-
     const { updateUsersHandler } = userStore();
     const { updateRoomsHandler } = roomStore();
 
     this.subscribe(switchRoomHandler(this));
+    this.on('BOT_SWITCH_ROOM', event => this.onSwitchRoom(event));
     this.subscribe(updateUsersHandler);
     this.subscribe(updateRoomsHandler);
 
     this.messageSubject.subscribe(message => this.onMessage(message));
 
-    await this.login({
-      username: this.username,
-      password: this.password,
-      roomId: this.roomId
-    });
-
-    await this.awaitEvent(
-      event =>
-        event.type === 'UPDATE_ROOM_STORE' || event.type === 'UPDATE_USER_STORE'
-    );
+    await this.client.start();
   }
 
   public on<T extends Event['type']>(
@@ -147,6 +138,19 @@ export class Bot extends WithServices(
     };
   }
 
+  private async onStart(): Promise<void> {
+    await this.login({
+      username: this.username,
+      password: this.password,
+      roomId: this.roomId
+    });
+
+    await this.awaitEvent(
+      event =>
+        event.type === 'UPDATE_ROOM_STORE' || event.type === 'UPDATE_USER_STORE'
+    );
+  }
+
   private async onMessage(content: string): Promise<void> {
     const oldRoomId = this.roomId;
     const events = parseEvents(this, content);
@@ -159,6 +163,17 @@ export class Bot extends WithServices(
       for (const handler of this.handlers) {
         await handler(event);
       }
+    }
+  }
+
+  private async onSwitchRoom(
+    event: EventTypeOf<'BOT_SWITCH_ROOM'>
+  ): Promise<void> {
+    if (this.roomId !== event.targetRoomId) {
+      this.roomId = event.targetRoomId;
+      await this.switchRoom({ targetRoomId: event.targetRoomId });
+      await this.client.close();
+      await this.client.start();
     }
   }
 }
