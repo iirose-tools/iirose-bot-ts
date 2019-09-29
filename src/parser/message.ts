@@ -1,5 +1,4 @@
 import { Bot } from '../Bot';
-import { createPublicMessage, createUser } from '../data';
 import {
   Event,
   publicMessageEvent,
@@ -7,6 +6,7 @@ import {
   userLeaveEvent,
   userSwitchRoomEvent
 } from '../events';
+import { PublicMessage, User, UserGender, UserRank } from '../models';
 import { decodeEntities } from '../utils/entities';
 import { regexScan } from '../utils/regexScan';
 import { USER_GENDERS, USER_RANKS } from './constants';
@@ -41,13 +41,12 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
   ] = data.split('>');
 
   const userAttributes = {
-    bot,
     id: userId,
     avatar: decodeEntities(avatar),
     username: decodeEntities(username),
     color: decodeEntities(userColor),
-    gender: USER_GENDERS[parseInt(gender, 10)] || 'NONE',
-    rank: USER_RANKS[parseInt(rank[0], 10)] || 'OTHER'
+    gender: USER_GENDERS[parseInt(gender, 10)] || UserGender.None,
+    rank: USER_RANKS[parseInt(rank[0], 10)] || UserRank.Other
   };
 
   const otherAttributes =
@@ -57,7 +56,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
     switch (text[1]) {
       case '1':
         yield userJoinEvent({
-          user: createUser({
+          user: new User(bot, {
             ...userAttributes,
             ...otherAttributes,
             roomId: bot.roomId
@@ -68,7 +67,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
       case '2':
         const roomId = text.substr(2);
         yield userSwitchRoomEvent({
-          user: createUser({
+          user: new User(bot, {
             ...userAttributes,
             ...otherAttributes,
             roomId
@@ -79,7 +78,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
 
       case '3':
         yield userLeaveEvent({
-          user: createUser({ ...userAttributes, ...otherAttributes })
+          user: new User(bot, { ...userAttributes, ...otherAttributes })
         });
         break;
     }
@@ -107,14 +106,12 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
       content = rawContent.substr(index);
     }
 
-    const user = createUser({
-      bot,
+    const user = new User(bot, {
       ...userAttributes,
       roomId: bot.roomId
     });
 
-    const message = createPublicMessage({
-      bot,
+    const message = new PublicMessage(bot, {
       id: messageId,
       user,
       timestamp: parseInt(timestamp, 10),

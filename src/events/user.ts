@@ -1,4 +1,4 @@
-import { User } from '../data';
+import { User } from '../models';
 import { createEvent } from './event';
 
 export const userJoinEvent = createEvent('USER_JOIN')<{

@@ -2,60 +2,70 @@ import {
   RoomLanguage,
   RoomProtection,
   RoomType,
+  UserActiveState,
+  UserAwayState,
+  UserBotState,
+  UserChattingState,
+  UserEnteringState,
   UserGender,
   UserRank,
   UserState
-} from '../data';
+} from '../models';
 
 export const ROOM_TYPES: RoomType[] = [
-  'ORDINARY',
-  'MUSIC_SHARE',
-  'VIDEO_SHARE',
-  'MUSIC',
-  'VIDEO'
+  RoomType.Ordinary,
+  RoomType.MusicShare,
+  RoomType.VideoShare,
+  RoomType.Music,
+  RoomType.Video
 ];
 
 export const ROOM_LANGUAGES: RoomLanguage[] = [
-  'JA',
-  'EN',
-  'ZH-HANT',
-  'ZH-HANS',
-  'KO',
-  'FR'
+  RoomLanguage.Japanese,
+  RoomLanguage.English,
+  RoomLanguage.TraditionalChinese,
+  RoomLanguage.SimplifiedChinese,
+  RoomLanguage.Korean,
+  RoomLanguage.French
 ];
 
 export const ROOM_PROTECTIONS: { [key: string]: RoomProtection } = {
-  '-1': 'OPEN',
-  '0': 'LOCK',
-  '1': 'LOCK_HIDE_PEOPLE',
-  '2': 'LOCK_HIDE_PEOPLE_AMOUNT'
+  '-1': RoomProtection.Open,
+  '0': RoomProtection.Locked,
+  '1': RoomProtection.LockedHideUsers,
+  '2': RoomProtection.LockedHideUserCount
 };
 
-export const USER_GENDERS: UserGender[] = ['NONE', 'MALE', 'FEMALE', 'COUPLE'];
+export const USER_GENDERS: UserGender[] = [
+  UserGender.None,
+  UserGender.Male,
+  UserGender.Female,
+  UserGender.Couple
+];
 
 export const USER_STATES: { [key: string]: UserState } = {
-  a: { type: 'BOT' },
-  '': { type: 'AWAY' },
-  '*': { type: 'ENTERING' },
-  '0': { type: 'ACTIVE', minutes: 8 },
-  '1': { type: 'ACTIVE', minutes: 6 },
-  '2': { type: 'ACTIVE', minutes: 4 },
-  '3': { type: 'ACTIVE', minutes: 2 },
-  '4': { type: 'ACTIVE', minutes: 0 },
-  '5': { type: 'CHATTING', minutes: 8 },
-  '6': { type: 'CHATTING', minutes: 6 },
-  '7': { type: 'CHATTING', minutes: 4 },
-  '8': { type: 'CHATTING', minutes: 2 },
-  '9': { type: 'CHATTING', minutes: 0 }
+  a: new UserBotState(),
+  '': new UserAwayState(),
+  '*': new UserEnteringState(),
+  '0': new UserActiveState(8),
+  '1': new UserActiveState(6),
+  '2': new UserActiveState(4),
+  '3': new UserActiveState(2),
+  '4': new UserActiveState(0),
+  '5': new UserChattingState(8),
+  '6': new UserChattingState(6),
+  '7': new UserChattingState(4),
+  '8': new UserChattingState(2),
+  '9': new UserChattingState(0)
 };
 
 export const USER_RANKS: UserRank[] = [
-  'PETAL',
-  'RECEPTIONIST',
-  'WAITER',
-  'PROSECUTOR',
-  'BOT',
-  'ADMIN',
-  'ASSISTANT',
-  'BOSS'
+  UserRank.Petal,
+  UserRank.Receptionist,
+  UserRank.Waiter,
+  UserRank.Prosecutor,
+  UserRank.Bot,
+  UserRank.Admin,
+  UserRank.Assistant,
+  UserRank.Boss
 ];

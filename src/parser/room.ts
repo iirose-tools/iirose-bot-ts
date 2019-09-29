@@ -1,6 +1,12 @@
 import { Bot } from '../Bot';
-import { createRoom } from '../data';
 import { Event, updateRoomStoreEvent } from '../events';
+import {
+  Room,
+  RoomLanguage,
+  RoomProtection,
+  RoomType,
+  UserGender
+} from '../models';
 import { decodeEntities } from '../utils/entities';
 import {
   ROOM_LANGUAGES,
@@ -27,13 +33,12 @@ export function* parseRoomUpdates(
       const pathArray = path.split('_');
       const id = pathArray[pathArray.length - 1];
 
-      return createRoom({
-        bot,
+      return new Room(bot, {
         id,
         path,
         name: decodeEntities(name),
         color: decodeEntities(color),
-        protection: ROOM_PROTECTIONS[protectionNum] || 'OPEN',
+        protection: ROOM_PROTECTIONS[protectionNum] || RoomProtection.Open,
         ...parseRoomAttributes(attributes),
         ...parseRoomInfo(info)
       });
@@ -47,10 +52,10 @@ const parseRoomAttributes = (data: string) => {
   const [type, weather, rolePlay, language] = data;
 
   return {
-    type: ROOM_TYPES[parseInt(type, 10)] || 'ORDINARY',
+    type: ROOM_TYPES[parseInt(type, 10)] || RoomType.Ordinary,
     isWeather: weather === '1',
     isRolePlay: rolePlay === '1',
-    language: ROOM_LANGUAGES[parseInt(language, 10)] || 'ALL'
+    language: ROOM_LANGUAGES[parseInt(language, 10)] || RoomLanguage.All
   };
 };
 
@@ -66,7 +71,7 @@ const parseRoomInfo = (data: string) => {
   const owner = {
     username: decodeEntities(ownerName),
     avatar: decodeEntities(ownerAvatar),
-    gender: USER_GENDERS[parseInt(ownerGender, 10)] || 'NONE'
+    gender: USER_GENDERS[parseInt(ownerGender, 10)] || UserGender.None
   };
 
   const members = memberData.split(' & ').map(member => ({

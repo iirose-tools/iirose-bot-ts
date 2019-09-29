@@ -1,4 +1,4 @@
-import { Room, User } from '../data';
+import { Room, User } from '../models';
 import { createEvent } from './event';
 
 export const updateRoomStoreEvent = createEvent('UPDATE_ROOM_STORE')<{

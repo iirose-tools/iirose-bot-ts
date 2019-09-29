@@ -1,5 +1,5 @@
-import { Room } from '../data';
 import { Event } from '../events';
+import { Room } from '../models';
 
 type RoomMap = Readonly<{
   [id: string]: Room | undefined;

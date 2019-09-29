@@ -1,5 +1,5 @@
-import { User } from '../data';
 import { Event } from '../events';
+import { User } from '../models';
 
 type UserMap = Readonly<{ [key: string]: User | undefined }>;
 

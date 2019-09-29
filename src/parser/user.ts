@@ -1,6 +1,6 @@
 import { Bot } from '../Bot';
-import { createUser } from '../data';
 import { Event, updateUserStoreEvent } from '../events';
+import { User, UserGender } from '../models';
 import { decodeEntities } from '../utils/entities';
 import { USER_GENDERS, USER_STATES } from './constants';
 
@@ -25,14 +25,13 @@ export function* parseUserUpdates(
         stateChar
       ] = userData.split('>').map(e => decodeEntities(e));
 
-      return createUser({
-        bot,
+      return new User(bot, {
         id,
         avatar,
         username,
         color,
         roomId,
-        gender: USER_GENDERS[parseInt(gender, 10)] || 'NONE',
+        gender: USER_GENDERS[parseInt(gender, 10)] || UserGender.None,
         state: USER_STATES[stateChar]
       });
     });
