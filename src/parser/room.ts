@@ -1,5 +1,5 @@
 import { Bot } from '../Bot';
-import { Event, updateRoomStoreEvent } from '../events';
+import { BaseEvent, UpdateRoomsEvent } from '../events';
 import {
   Room,
   RoomLanguage,
@@ -18,7 +18,7 @@ import {
 export function* parseRoomUpdates(
   bot: Bot,
   data: string
-): IterableIterator<Event> {
+): IterableIterator<BaseEvent> {
   if (data) {
     const rooms = data.split('<').map(roomData => {
       const [
@@ -44,7 +44,7 @@ export function* parseRoomUpdates(
       });
     });
 
-    yield updateRoomStoreEvent({ rooms });
+    yield new UpdateRoomsEvent({ rooms });
   }
 }
 

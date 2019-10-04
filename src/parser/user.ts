@@ -1,5 +1,5 @@
 import { Bot } from '../Bot';
-import { Event, updateUserStoreEvent } from '../events';
+import { BaseEvent, UpdateUsersEvent } from '../events';
 import { User, UserGender } from '../models';
 import { decodeEntities } from '../utils/entities';
 import { USER_GENDERS, USER_STATES } from './constants';
@@ -7,7 +7,7 @@ import { USER_GENDERS, USER_STATES } from './constants';
 export function* parseUserUpdates(
   bot: Bot,
   data: string
-): IterableIterator<Event> {
+): IterableIterator<BaseEvent> {
   if (data) {
     const users = data.split('<').map(userData => {
       const [
@@ -36,6 +36,6 @@ export function* parseUserUpdates(
       });
     });
 
-    yield updateUserStoreEvent({ users });
+    yield new UpdateUsersEvent({ users });
   }
 }

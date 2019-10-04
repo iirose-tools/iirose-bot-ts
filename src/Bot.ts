@@ -1,7 +1,11 @@
 import { Subject } from 'rxjs';
 import { Client } from './Client';
-import { Event, EventTypeOf } from './events';
-import { switchRoomHandler } from './handlers';
+import {
+  BaseEvent,
+  BotChangeRoomEvent,
+  UpdateRoomsEvent,
+  UpdateUsersEvent
+} from './events';
 import { parseEvents } from './parser';
 import {
   AuthService,
@@ -11,6 +15,7 @@ import {
   WithServices
 } from './services';
 import { roomStore, userStore } from './stores';
+import { Type } from './utils/types';
 
 interface BaseBotOptions {
   username: string;
@@ -35,7 +40,7 @@ export class Bot extends WithServices(
   protected readonly client: Client;
 
   private readonly messageSubject: Subject<string>;
-  private handlers: Array<(event: Event) => any>;
+  private handlers: Array<(event: BaseEvent) => any>;
 
   constructor(options: BaseBotOptions) {
     const messageSubject = new Subject<string>();
@@ -61,8 +66,7 @@ export class Bot extends WithServices(
     const { updateUsersHandler } = userStore();
     const { updateRoomsHandler } = roomStore();
 
-    this.subscribe(switchRoomHandler(this));
-    this.on('BOT_SWITCH_ROOM', event => this.onSwitchRoom(event));
+    this.on(BotChangeRoomEvent, event => this.onSwitchRoom(event));
     this.subscribe(updateUsersHandler);
     this.subscribe(updateRoomsHandler);
 
@@ -71,47 +75,61 @@ export class Bot extends WithServices(
     await this.client.start();
   }
 
-  public on<T extends Event['type']>(
-    type: T,
-    handler: (event: EventTypeOf<T>) => any
+  public on<E extends BaseEvent>(
+    EventType: Type<E>,
+    handler: (event: E) => any
   ): void {
     this.subscribe(async event => {
-      if (event.type === type) {
-        await handler(event as EventTypeOf<T>);
+      if (event instanceof EventType) {
+        await handler(event as E);
       }
     });
   }
 
-  public awaitEvent<E extends Event['type']>(
-    eventType: E
-  ): Promise<EventTypeOf<E>>;
-  public awaitEvent<E extends Event['type']>(
-    eventType: E,
-    timeout: number
-  ): Promise<EventTypeOf<E> | null>;
-  public awaitEvent<E extends Event>(
-    checker: (event: E) => boolean
-  ): Promise<E>;
-  public awaitEvent<E extends Event>(
-    checker: (event: E) => boolean,
+  public awaitEvent<E extends Type<BaseEvent>>(eventTypes: E[]): Promise<E>;
+  public awaitEvent<E extends Type<BaseEvent>>(
+    eventTypes: E[],
     timeout: number
   ): Promise<E | null>;
+  public awaitEvent<E extends BaseEvent>(
+    checker: (event: BaseEvent) => event is E
+  ): Promise<E>;
+  public awaitEvent<E extends BaseEvent>(
+    checker: (event: BaseEvent) => event is E,
+    timeout: number
+  ): Promise<E | null>;
+  public awaitEvent(checker: (event: BaseEvent) => boolean): Promise<BaseEvent>;
   public awaitEvent(
-    checker: Event['type'] | ((event: Event) => boolean),
+    checker: (event: BaseEvent) => boolean,
+    timeout: number
+  ): Promise<BaseEvent | null>;
+  public awaitEvent<E extends BaseEvent>(
+    eventTypesOrChecker:
+      | Array<Type<E>>
+      | ((event: BaseEvent) => event is E)
+      | ((event: BaseEvent) => boolean),
     timeout?: number
-  ): Promise<Event | null> {
+  ): Promise<E | null> {
     let unsubscribe: () => void;
 
-    if (typeof checker !== 'function') {
-      return this.awaitEvent(
-        (event: Event) => event.type === checker,
+    if (Array.isArray(eventTypesOrChecker)) {
+      return this.awaitEvent<E>(
+        (event: BaseEvent): event is E => {
+          for (const EventType of eventTypesOrChecker) {
+            if (event instanceof EventType) {
+              return true;
+            }
+          }
+
+          return false;
+        },
         timeout as number
       );
     }
 
-    const awaitPromise = new Promise<Event>(resolve => {
+    const awaitPromise = new Promise<E>(resolve => {
       unsubscribe = this.subscribe(event => {
-        if (checker(event)) {
+        if (eventTypesOrChecker(event)) {
           resolve(event);
         }
       });
@@ -125,13 +143,13 @@ export class Bot extends WithServices(
         }, timeout)
       );
 
-      return Promise.race<Event | null>([awaitPromise, timeoutPromise]);
+      return Promise.race<E | null>([awaitPromise, timeoutPromise]);
     }
 
     return awaitPromise;
   }
 
-  public subscribe(handler: (event: Event) => any): Unsubscriber {
+  public subscribe(handler: (event: BaseEvent) => any): Unsubscriber {
     this.handlers = [...this.handlers, handler];
     return () => {
       this.handlers = this.handlers.filter(fn => fn !== handler);
@@ -145,10 +163,7 @@ export class Bot extends WithServices(
       roomId: this.roomId
     });
 
-    await this.awaitEvent(
-      event =>
-        event.type === 'UPDATE_ROOM_STORE' || event.type === 'UPDATE_USER_STORE'
-    );
+    await this.awaitEvent([UpdateRoomsEvent, UpdateUsersEvent]);
   }
 
   private async onMessage(content: string): Promise<void> {
@@ -166,9 +181,7 @@ export class Bot extends WithServices(
     }
   }
 
-  private async onSwitchRoom(
-    event: EventTypeOf<'BOT_SWITCH_ROOM'>
-  ): Promise<void> {
+  private async onSwitchRoom(event: BotChangeRoomEvent): Promise<void> {
     if (this.roomId !== event.targetRoomId) {
       this.roomId = event.targetRoomId;
       await this.switchRoom({ targetRoomId: event.targetRoomId });

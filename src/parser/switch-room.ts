@@ -1,6 +1,6 @@
-import { botSwitchRoomEvent, Event } from '../events';
+import { BaseEvent, BotChangeRoomEvent } from '../events';
 
-export function* parseSwitchRoom(data: string): IterableIterator<Event> {
+export function* parseSwitchRoom(data: string): IterableIterator<BaseEvent> {
   let roomId;
 
   if (/^-\*/.test(data)) {
@@ -11,5 +11,5 @@ export function* parseSwitchRoom(data: string): IterableIterator<Event> {
     return;
   }
 
-  yield botSwitchRoomEvent({ targetRoomId: roomId });
+  yield new BotChangeRoomEvent({ targetRoomId: roomId });
 }

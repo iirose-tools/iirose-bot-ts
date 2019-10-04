@@ -1,4 +1,4 @@
-import { Event } from '../events';
+import { BaseEvent, UpdateUsersEvent } from '../events';
 import { User } from '../models';
 
 type UserMap = Readonly<{ [key: string]: User | undefined }>;
@@ -15,8 +15,8 @@ export const userStore = () => {
   let usersByUsername: UserMap;
 
   return {
-    updateUsersHandler: (event: Event): void => {
-      if (event.type === 'UPDATE_USER_STORE') {
+    updateUsersHandler: (event: BaseEvent): void => {
+      if (event instanceof UpdateUsersEvent) {
         users = event.users;
 
         usersById = users.reduce(

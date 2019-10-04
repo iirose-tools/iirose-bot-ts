@@ -1,10 +1,10 @@
 import { Bot } from '../Bot';
 import {
-  Event,
-  publicMessageEvent,
-  userJoinEvent,
-  userLeaveEvent,
-  userSwitchRoomEvent
+  BaseEvent,
+  PublicMessageEvent,
+  UserChangeRoomEvent,
+  UserJoinEvent,
+  UserLeaveEvent
 } from '../events';
 import { PublicMessage, User, UserGender, UserRank } from '../models';
 import { decodeEntities } from '../utils/entities';
@@ -14,7 +14,7 @@ import { USER_GENDERS, USER_RANKS } from './constants';
 export function* parseMessages(
   bot: Bot,
   data: string
-): IterableIterator<Event> {
+): IterableIterator<BaseEvent> {
   if (/^\d/.test(data)) {
     const messagesData = data.split('"')[0];
     const messages = messagesData.split('<').reverse();
@@ -25,7 +25,7 @@ export function* parseMessages(
   }
 }
 
-function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
+function* parseMessage(bot: Bot, data: string): IterableIterator<BaseEvent> {
   const [
     timestamp,
     avatar,
@@ -55,7 +55,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
   if (text[0] === "'") {
     switch (text[1]) {
       case '1':
-        yield userJoinEvent({
+        yield new UserJoinEvent({
           user: new User(bot, {
             ...userAttributes,
             ...otherAttributes,
@@ -66,7 +66,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
 
       case '2':
         const roomId = text.substr(2);
-        yield userSwitchRoomEvent({
+        yield new UserChangeRoomEvent({
           user: new User(bot, {
             ...userAttributes,
             ...otherAttributes,
@@ -77,7 +77,7 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
         break;
 
       case '3':
-        yield userLeaveEvent({
+        yield new UserLeaveEvent({
           user: new User(bot, { ...userAttributes, ...otherAttributes })
         });
         break;
@@ -120,6 +120,6 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<Event> {
       referredMessages
     });
 
-    yield publicMessageEvent({ message });
+    yield new PublicMessageEvent({ message });
   }
 }

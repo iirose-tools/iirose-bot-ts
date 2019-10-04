@@ -1,4 +1,4 @@
-import { Event } from '../events';
+import { BaseEvent, UpdateRoomsEvent } from '../events';
 import { Room } from '../models';
 
 type RoomMap = Readonly<{
@@ -48,8 +48,8 @@ export const roomStore = () => {
   };
 
   return {
-    updateRoomsHandler: (event: Event): void => {
-      if (event.type === 'UPDATE_ROOM_STORE') {
+    updateRoomsHandler: (event: BaseEvent): void => {
+      if (event instanceof UpdateRoomsEvent) {
         rooms = event.rooms;
 
         roomsById = rooms.reduce(
