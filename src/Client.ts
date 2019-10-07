@@ -4,6 +4,8 @@ import {
   defer,
   identity,
   interval,
+  Subject,
+  Subscription,
   throwError,
   timer
 } from 'rxjs';
@@ -20,17 +22,23 @@ import WebSocket from 'ws';
 
 export class Client {
   private webSocketSubject!: WebSocketSubject<string>;
-  private readonly connectionSubject: BehaviorSubject<boolean>;
 
   private shouldReconnect: boolean;
+  private readonly connectionSubject: BehaviorSubject<boolean>;
 
-  constructor(
-    private onStartCallback: () => void | Promise<void>,
-    private onMessageCallback: (content: string) => void,
-    private onErrorCallback: (err: Error) => void
-  ) {
+  private readonly startSubject: Subject<void>;
+  private readonly closeSubject: Subject<void>;
+  private readonly errorSubject: Subject<any>;
+  private readonly messageSubject: Subject<string>;
+
+  constructor() {
     this.shouldReconnect = false;
     this.connectionSubject = new BehaviorSubject<boolean>(false);
+
+    this.startSubject = new Subject();
+    this.closeSubject = new Subject();
+    this.errorSubject = new Subject();
+    this.messageSubject = new Subject();
   }
 
   public async start(): Promise<void> {
@@ -79,6 +87,22 @@ export class Client {
     });
   }
 
+  public onStart(observer: () => void): Subscription {
+    return this.startSubject.subscribe(observer);
+  }
+
+  public onClose(observer: () => void): Subscription {
+    return this.closeSubject.subscribe(observer);
+  }
+
+  public onMessage(observer: (message: string) => void): Subscription {
+    return this.messageSubject.subscribe(observer);
+  }
+
+  public onError(observer: (error: any) => void): Subscription {
+    return this.errorSubject.subscribe(observer);
+  }
+
   private async tryStart(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.shouldReconnect = true;
@@ -88,9 +112,9 @@ export class Client {
         WebSocketCtor: WebSocket,
         openObserver: {
           next: async () => {
+            this.startSubject.next();
             this.connectionSubject.next(true);
             this.heartbeat();
-            await this.onStartCallback();
             resolve();
           }
         },
@@ -100,24 +124,26 @@ export class Client {
       });
 
       this.webSocketSubject.subscribe(
-        message => this.onMessage(message),
-        error => this.onError(error),
-        () => this.onClose
+        message => this.handleMessage(message),
+        error => this.handleError(error),
+        () => this.handleClose
       );
     });
   }
 
-  private onMessage(data: string): void {
+  private handleMessage(data: string): void {
+    this.messageSubject.next(data);
     this.connectionSubject.next(true);
-    this.onMessageCallback(data);
   }
 
-  private onError(err: Error): void {
-    this.onClose();
-    this.onErrorCallback(err);
+  private handleError(err: Error): void {
+    this.handleClose();
+    this.errorSubject.next(err);
   }
 
-  private onClose(): void {
+  private handleClose(): void {
+    this.closeSubject.next();
+
     // Handled by promise rejection if never started.
     const hasStarted = this.connectionSubject.value;
     if (hasStarted) {

@@ -1,12 +1,12 @@
-import { Subject } from 'rxjs';
 import { Client } from './Client';
+import { EventEmitter } from './emitter/EventEmitter';
 import {
   BaseEvent,
   BotChangeRoomEvent,
+  ClientConnectedEvent,
   UpdateRoomsEvent,
   UpdateUsersEvent
 } from './events';
-import { parseEvents } from './parser';
 import {
   AuthService,
   MessageService,
@@ -38,18 +38,10 @@ export class Bot extends WithServices(
   public readonly color: string;
 
   protected readonly client: Client;
-
-  private readonly messageSubject: Subject<string>;
-  private handlers: Array<(event: BaseEvent) => any>;
+  protected readonly eventEmitter: EventEmitter;
 
   constructor(options: BaseBotOptions) {
-    const messageSubject = new Subject<string>();
-    const client = new Client(
-      () => this.onStart(),
-      message => messageSubject.next(message),
-      error => console.error(error)
-    );
-
+    const client = new Client();
     super(client);
 
     this.username = options.username;
@@ -58,8 +50,7 @@ export class Bot extends WithServices(
     this.color = options.color || 'f0f0f0';
 
     this.client = client;
-    this.messageSubject = messageSubject;
-    this.handlers = [];
+    this.eventEmitter = new EventEmitter(this, client);
   }
 
   public async start(): Promise<void> {
@@ -70,9 +61,8 @@ export class Bot extends WithServices(
     this.subscribe(updateUsersHandler);
     this.subscribe(updateRoomsHandler);
 
-    this.messageSubject.subscribe(message => this.onMessage(message));
-
     await this.client.start();
+    await this.onStart();
   }
 
   public on<E extends BaseEvent>(
@@ -149,10 +139,10 @@ export class Bot extends WithServices(
     return awaitPromise;
   }
 
-  public subscribe(handler: (event: BaseEvent) => any): Unsubscriber {
-    this.handlers = [...this.handlers, handler];
+  public subscribe(handler: (event: BaseEvent) => void): Unsubscriber {
+    const subscription = this.eventEmitter.onEvent(handler);
     return () => {
-      this.handlers = this.handlers.filter(fn => fn !== handler);
+      subscription.unsubscribe();
     };
   }
 
@@ -164,21 +154,7 @@ export class Bot extends WithServices(
     });
 
     await this.awaitEvent([UpdateRoomsEvent, UpdateUsersEvent]);
-  }
-
-  private async onMessage(content: string): Promise<void> {
-    const oldRoomId = this.roomId;
-    const events = parseEvents(this, content);
-
-    for (const event of events) {
-      if (this.roomId !== oldRoomId) {
-        break;
-      }
-
-      for (const handler of this.handlers) {
-        await handler(event);
-      }
-    }
+    this.on(ClientConnectedEvent, () => this.onStart());
   }
 
   private async onSwitchRoom(event: BotChangeRoomEvent): Promise<void> {
