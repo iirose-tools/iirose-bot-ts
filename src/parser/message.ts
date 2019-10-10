@@ -1,31 +1,58 @@
 import { Bot } from '../Bot';
 import {
+  AnonymousPrivateMessageEvent,
   BaseEvent,
+  PrivateMessageEvent,
   PublicMessageEvent,
   UserChangeRoomEvent,
   UserJoinEvent,
   UserLeaveEvent
 } from '../events';
-import { PublicMessage, User, UserGender, UserRank } from '../models';
+import {
+  AnonymousPrivateMessage,
+  PrivateMessage,
+  PublicMessage,
+  User,
+  UserGender,
+  UserRank
+} from '../models';
 import { decodeEntities } from '../utils/entities';
 import { regexScan } from '../utils/regexScan';
-import { USER_GENDERS, USER_RANKS } from './constants';
+import {
+  NON_MESSAGE_STARTING_CHARS,
+  USER_GENDERS,
+  USER_RANKS
+} from './constants';
 
 export function* parseMessages(
   bot: Bot,
   data: string
 ): IterableIterator<BaseEvent> {
-  if (/^\d/.test(data)) {
-    const messagesData = data.split('"')[0];
-    const messages = messagesData.split('<').reverse();
+  if (!NON_MESSAGE_STARTING_CHARS.includes(data[0])) {
+    const [publicMessagesData, privateMessagesData] = data.split('"');
 
-    for (const messageData of messages) {
-      yield* parseMessage(bot, messageData);
+    if (publicMessagesData) {
+      const publicMessages = publicMessagesData.split('<').reverse();
+
+      for (const messageData of publicMessages) {
+        yield* parsePublicMessage(bot, messageData);
+      }
+    }
+
+    if (privateMessagesData) {
+      const privateMessages = privateMessagesData.split('<').reverse();
+
+      for (const messageData of privateMessages) {
+        yield* parsePrivateMessage(bot, messageData);
+      }
     }
   }
 }
 
-function* parseMessage(bot: Bot, data: string): IterableIterator<BaseEvent> {
+function* parsePublicMessage(
+  bot: Bot,
+  data: string
+): IterableIterator<BaseEvent> {
   const [
     timestamp,
     avatar,
@@ -121,5 +148,49 @@ function* parseMessage(bot: Bot, data: string): IterableIterator<BaseEvent> {
     });
 
     yield new PublicMessageEvent({ message });
+  }
+}
+
+function* parsePrivateMessage(
+  bot: Bot,
+  data: string
+): IterableIterator<BaseEvent> {
+  const [
+    userId,
+    username,
+    avatar,
+    content,
+    messageColor,
+    anonymous,
+    userColor,
+    gender,
+    ,
+    messageId
+  ] = data.split('>');
+
+  if (anonymous === '@') {
+    const message = new AnonymousPrivateMessage(bot, {
+      id: messageId,
+      content: decodeEntities(content)
+    });
+
+    yield new AnonymousPrivateMessageEvent({ message });
+  } else {
+    const user = new User(bot, {
+      id: userId,
+      avatar: decodeEntities(avatar),
+      username: decodeEntities(username),
+      color: decodeEntities(userColor),
+      gender: USER_GENDERS[parseInt(gender, 10)] || UserGender.None
+    });
+
+    const message = new PrivateMessage(bot, {
+      id: messageId,
+      user,
+      content: decodeEntities(content),
+      color: decodeEntities(messageColor)
+    });
+
+    yield new PrivateMessageEvent({ message });
   }
 }

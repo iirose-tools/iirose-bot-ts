@@ -69,3 +69,5 @@ export const USER_RANKS: UserRank[] = [
   UserRank.Assistant,
   UserRank.Boss
 ];
+
+export const NON_MESSAGE_STARTING_CHARS = '%+-=$&?~^:.,;_|`@#*>]s)twumhzcvpaqi';
