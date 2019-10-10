@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.0.0...v2.1.0) (2019-10-10)
+
+
+### Features
+
+* New private message events ([4d4036d](https://github.com/iirose-tools/iirose-bot-ts/commit/4d4036df54b7a95f7e8fe85ca4448712d15e89ef))
+
+
+### Bug Fixes
+
+* Fix bot restart handling ([78996e5](https://github.com/iirose-tools/iirose-bot-ts/commit/78996e5f60e8ec42a9a7a223ca50d56993872f62))
+
 ## [2.0.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v1.0.1...v2.0.0) (2019-10-07)
 
 
