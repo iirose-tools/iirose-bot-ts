@@ -147,14 +147,14 @@ export class Bot extends WithServices(
   }
 
   private async onStart(): Promise<void> {
+    this.on(ClientConnectedEvent, () => this.onStart());
+
     await this.login({
       username: this.username,
       password: this.password,
       roomId: this.roomId
     });
-
     await this.awaitEvent([UpdateRoomsEvent, UpdateUsersEvent]);
-    this.on(ClientConnectedEvent, () => this.onStart());
   }
 
   private async onSwitchRoom(event: BotChangeRoomEvent): Promise<void> {
