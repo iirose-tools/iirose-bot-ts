@@ -33,6 +33,18 @@ export class PublicMessage {
   }
 
   public getMentions(): string[] {
-    return Array.from(this.content.match(/ \[\*([^<>'"\n]+?)\*] /g) || []);
+    return Array.from(this.content.match(/ \[\*([^\n]+?)\*] /g) || []);
+  }
+
+  public async reply(content: string): Promise<void> {
+    await this.bot.createMessage({ content, color: this.bot.color });
+  }
+
+  public async replyPm(content: string): Promise<void> {
+    await this.bot.sendPm({
+      userId: this.user.id,
+      color: this.bot.color,
+      content
+    });
   }
 }

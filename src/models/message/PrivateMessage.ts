@@ -24,4 +24,12 @@ export class PrivateMessage {
     this.content = options.content;
     this.color = options.color;
   }
+
+  public async reply(content: string): Promise<void> {
+    await this.bot.sendPm({
+      userId: this.user.id,
+      color: this.bot.color,
+      content
+    });
+  }
 }
