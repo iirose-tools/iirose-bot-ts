@@ -14,6 +14,14 @@ export class UserService {
     this.client = client;
   }
 
+  public async searchUserById(userId: string): Promise<void> {
+    await this.client.send(`=--${userId.toLowerCase()}`);
+  }
+
+  public async getUserProfile(username: string): Promise<void> {
+    await this.client.send(`++${username.toLowerCase()}`);
+  }
+
   public async sendPm(options: SendPmOptions): Promise<void> {
     const data = {
       g: options.userId,

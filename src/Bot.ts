@@ -76,16 +76,11 @@ export class Bot extends WithServices(
     });
   }
 
-  public awaitEvent<E extends Type<BaseEvent>>(eventTypes: E[]): Promise<E>;
-  public awaitEvent<E extends Type<BaseEvent>>(
-    eventTypes: E[],
-    timeout: number
-  ): Promise<E | null>;
   public awaitEvent<E extends BaseEvent>(
-    checker: (event: BaseEvent) => event is E
+    eventTypes: Array<Type<E>> | ((event: BaseEvent) => event is E)
   ): Promise<E>;
   public awaitEvent<E extends BaseEvent>(
-    checker: (event: BaseEvent) => event is E,
+    eventTypes: Array<Type<E>> | ((event: BaseEvent) => event is E),
     timeout: number
   ): Promise<E | null>;
   public awaitEvent(checker: (event: BaseEvent) => boolean): Promise<BaseEvent>;
@@ -154,7 +149,7 @@ export class Bot extends WithServices(
       password: this.password,
       roomId: this.roomId
     });
-    await this.awaitEvent([UpdateRoomsEvent, UpdateUsersEvent]);
+    await this.awaitEvent<BaseEvent>([UpdateRoomsEvent, UpdateUsersEvent]);
   }
 
   private async onSwitchRoom(event: BotChangeRoomEvent): Promise<void> {

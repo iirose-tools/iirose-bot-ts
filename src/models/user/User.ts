@@ -1,4 +1,5 @@
 import { Bot } from '../../Bot';
+import { BaseUser } from '../generic';
 import { UserState } from './UserState';
 
 export enum UserGender {
@@ -31,7 +32,7 @@ export interface UserOptions {
   rank?: UserRank;
 }
 
-export class User {
+export class User extends BaseUser {
   public bot: Bot;
 
   public id: string;
@@ -44,6 +45,8 @@ export class User {
   public rank?: UserRank;
 
   constructor(bot: Bot, options: UserOptions) {
+    super();
+
     this.bot = bot;
 
     this.id = options.id;
@@ -62,6 +65,14 @@ export class User {
 
   public isBot(): boolean {
     return this.rank === 'BOT' || this.username === this.bot.username;
+  }
+
+  public async pm(content: string): Promise<void> {
+    await this.bot.sendPm({
+      userId: this.id,
+      color: this.bot.color,
+      content
+    });
   }
 
   public async like(): Promise<void> {

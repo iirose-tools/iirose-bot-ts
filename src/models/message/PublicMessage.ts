@@ -41,10 +41,6 @@ export class PublicMessage {
   }
 
   public async replyPm(content: string): Promise<void> {
-    await this.bot.sendPm({
-      userId: this.user.id,
-      color: this.bot.color,
-      content
-    });
+    await this.user.pm(content);
   }
 }

@@ -26,10 +26,6 @@ export class PrivateMessage {
   }
 
   public async reply(content: string): Promise<void> {
-    await this.bot.sendPm({
-      userId: this.user.id,
-      color: this.bot.color,
-      content
-    });
+    await this.user.pm(content);
   }
 }
