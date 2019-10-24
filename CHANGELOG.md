@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.1.1...v2.2.0) (2019-10-24)
+
+
+### Features
+
+* Receive gold notification event and user profile retrieval ([a21ab70](https://github.com/iirose-tools/iirose-bot-ts/commit/a21ab708526a0ee6b203af1d42c8e48a28bab2b9))
+
 ### [2.1.1](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.1.0...v2.1.1) (2019-10-17)
 
 ## [2.1.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.0.0...v2.1.0) (2019-10-10)
