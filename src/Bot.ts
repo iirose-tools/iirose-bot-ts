@@ -17,11 +17,12 @@ import {
 import { roomStore, userStore } from './stores';
 import { Type } from './utils/types';
 
-interface BaseBotOptions {
+export interface BotOptions {
   username: string;
   password: string;
   roomId?: string;
   color?: string;
+  retryAttempts?: number;
 }
 
 type Unsubscriber = () => void;
@@ -40,8 +41,8 @@ export class Bot extends WithServices(
   protected readonly client: Client;
   protected readonly eventEmitter: EventEmitter;
 
-  constructor(options: BaseBotOptions) {
-    const client = new Client();
+  constructor(options: BotOptions) {
+    const client = new Client(options.retryAttempts || 5);
     super(client);
 
     this.username = options.username;

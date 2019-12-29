@@ -31,7 +31,7 @@ export class Client {
   private readonly errorSubject: Subject<any>;
   private readonly messageSubject: Subject<string>;
 
-  constructor() {
+  constructor(private retryAttempts: number) {
     this.shouldReconnect = false;
     this.connectionSubject = new BehaviorSubject<boolean>(false);
 
@@ -48,7 +48,9 @@ export class Client {
           retryWhen(errors =>
             errors.pipe(
               flatMap((error, index) =>
-                index > 5 ? throwError(error) : timer((index + 1) * 5000)
+                index > this.retryAttempts
+                  ? throwError(error)
+                  : timer((index + 1) * 5000)
               )
             )
           )
