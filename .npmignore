@@ -8,3 +8,4 @@ tslint.json
 build/docs
 **/*.spec.*
 *.log
+.github
