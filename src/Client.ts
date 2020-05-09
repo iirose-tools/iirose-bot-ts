@@ -158,12 +158,12 @@ export class Client {
   }
 
   private heartbeat(): void {
-    interval(36e4)
+    interval(12e4)
       .pipe(
         flatMap(() => this.connectionSubject),
         takeWhile(identity)
       )
-      .subscribe(() => this.send('u'));
+      .subscribe(() => this.send(''));
   }
 
   private static pack(content: string): ArrayBuffer {
