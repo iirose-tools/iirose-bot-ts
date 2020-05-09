@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.2.0...v2.3.0) (2020-05-09)
+
+
+### Features
+
+* Add connection retry attempts option to `BotOptions` ([c0b4015](https://github.com/iirose-tools/iirose-bot-ts/commit/c0b40155e2a5e85fc979f1834746465f7798488a))
+
+
+### Bug Fixes
+
+* Fix heartbeat protocol ([60aaad2](https://github.com/iirose-tools/iirose-bot-ts/commit/60aaad2bb7e668b54be2daafe9405049416f7d83))
+
 ## [2.2.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.1.1...v2.2.0) (2019-10-24)
 
 
