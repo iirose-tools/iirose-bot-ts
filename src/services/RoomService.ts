@@ -12,8 +12,8 @@ export class RoomService {
     this.client = client;
   }
 
-  public async switchRoom(options: SwitchRoomOptions): Promise<void> {
-    await this.client.send(
+  public switchRoom(options: SwitchRoomOptions): void {
+    this.client.send(
       `m${options.targetRoomId}${
         options.password ? `>${options.password}` : ''
       }`

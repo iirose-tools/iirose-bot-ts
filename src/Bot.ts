@@ -42,7 +42,7 @@ export class Bot extends WithServices(
   protected readonly eventEmitter: EventEmitter;
 
   constructor(options: BotOptions) {
-    const client = new Client(options.retryAttempts || 5);
+    const client = new Client(options.retryAttempts);
     super(client);
 
     this.username = options.username;
@@ -99,18 +99,15 @@ export class Bot extends WithServices(
     let unsubscribe: () => void;
 
     if (Array.isArray(eventTypesOrChecker)) {
-      return this.awaitEvent<E>(
-        (event: BaseEvent): event is E => {
-          for (const EventType of eventTypesOrChecker) {
-            if (event instanceof EventType) {
-              return true;
-            }
+      return this.awaitEvent<E>((event: BaseEvent): event is E => {
+        for (const EventType of eventTypesOrChecker) {
+          if (event instanceof EventType) {
+            return true;
           }
+        }
 
-          return false;
-        },
-        timeout as number
-      );
+        return false;
+      }, timeout as number);
     }
 
     const awaitPromise = new Promise<E>(resolve => {

@@ -13,7 +13,7 @@ export class AuthService {
     this.client = client;
   }
 
-  public async login(options: LoginOptions): Promise<void> {
+  public login(options: LoginOptions): void {
     const data = {
       r: options.roomId,
       n: options.username,
@@ -24,6 +24,6 @@ export class AuthService {
       mu: '01'
     };
 
-    await this.client.send(`*${JSON.stringify(data)}`);
+    this.client.send(`*${JSON.stringify(data)}`);
   }
 }

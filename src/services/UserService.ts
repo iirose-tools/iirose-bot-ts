@@ -14,15 +14,15 @@ export class UserService {
     this.client = client;
   }
 
-  public async searchUserById(userId: string): Promise<void> {
-    await this.client.send(`=--${userId.toLowerCase()}`);
+  public searchUserById(userId: string): void {
+    this.client.send(`=--${userId.toLowerCase()}`);
   }
 
-  public async getUserProfile(username: string): Promise<void> {
-    await this.client.send(`++${username.toLowerCase()}`);
+  public getUserProfile(username: string): void {
+    this.client.send(`++${username.toLowerCase()}`);
   }
 
-  public async sendPm(options: SendPmOptions): Promise<void> {
+  public sendPm(options: SendPmOptions): void {
     const data = {
       g: options.userId,
       m: options.content,
@@ -30,18 +30,18 @@ export class UserService {
       i: uniqueId()
     };
 
-    await this.client.send(JSON.stringify(data));
+    this.client.send(JSON.stringify(data));
   }
 
-  public async likeUser(username: string): Promise<void> {
-    await this.client.send(`+*${username.toLowerCase()}`);
+  public likeUser(username: string): void {
+    this.client.send(`+*${username.toLowerCase()}`);
   }
 
-  public async followUser(username: string): Promise<void> {
-    await this.client.send(`+#0${username.toLowerCase()}`);
+  public followUser(username: string): void {
+    this.client.send(`+#0${username.toLowerCase()}`);
   }
 
-  public async unfollowUser(username: string): Promise<void> {
-    await this.client.send(`+#1${username.toLowerCase()}`);
+  public unfollowUser(username: string): void {
+    this.client.send(`+#1${username.toLowerCase()}`);
   }
 }

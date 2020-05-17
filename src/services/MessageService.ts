@@ -13,13 +13,13 @@ export class MessageService {
     this.client = client;
   }
 
-  public async createMessage(options: CreateMessageOptions): Promise<void> {
+  public createMessage(options: CreateMessageOptions): void {
     const data = {
       m: options.content,
       mc: options.color,
       i: uniqueId()
     };
 
-    await this.client.send(JSON.stringify(data));
+    this.client.send(JSON.stringify(data));
   }
 }

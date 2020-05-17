@@ -27,7 +27,7 @@
     "commit": "git-cz",
     "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
-    "clean": "trash build test"
+    "clean": "trash build"
   },
   "engines": {
     "node": ">=8.9"
@@ -35,6 +35,7 @@
   "dependencies": {
     "html-entities": "^1.2.1",
     "pako": "^1.0.10",
+    "reconnecting-websocket": "^4.4.0",
     "rxjs": "^6.5.2",
     "ws": "^7.1.2"
   },
