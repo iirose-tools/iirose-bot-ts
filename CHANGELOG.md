@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.3](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.2...v2.3.3) (2020-05-22)
+
+
+### Bug Fixes
+
+* Avoid bot process closing on parsing errors ([2d1ddef](https://github.com/iirose-tools/iirose-bot-ts/commit/2d1ddef82aeb83d605e767234944d14255577ed6))
+
 ### [2.3.2](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.1...v2.3.2) (2020-05-17)
 
 ### [2.3.1](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.0...v2.3.1) (2020-05-17)

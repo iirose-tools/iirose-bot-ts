@@ -1,6 +1,6 @@
 {
   "name": "iirose-bot",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "IIROSE bot library.",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
