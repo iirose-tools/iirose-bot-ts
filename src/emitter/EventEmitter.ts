@@ -32,12 +32,22 @@ export class EventEmitter {
     client.onMessage(message => {
       const oldRoomId = bot.roomId;
 
-      for (const event of parseEvents(bot, message)) {
-        if (bot.roomId !== oldRoomId) {
-          break;
-        }
+      for (const events of parseEvents(bot, message)) {
+        try {
+          for (const event of events) {
+            if (bot.roomId !== oldRoomId) {
+              break;
+            }
 
-        this.emit(event);
+            this.emit(event);
+          }
+        } catch (e) {
+          console.error(
+            `An error occurred while parsing ${JSON.stringify(message)}: ${
+              e instanceof Error ? e.stack || e.message : e
+            }`
+          );
+        }
       }
     });
   }

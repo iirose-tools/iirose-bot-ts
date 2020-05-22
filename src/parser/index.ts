@@ -6,13 +6,15 @@ import { parseResponses } from './response';
 import { parseSwitchRoom } from './switch-room';
 import { parseUpdates } from './update';
 
-export function* parseEvents(
+export function parseEvents(
   bot: Bot,
   data: string
-): IterableIterator<BaseEvent> {
-  yield* parseSwitchRoom(data);
-  yield* parseUpdates(bot, data);
-  yield* parseMessages(bot, data);
-  yield* parseNotifications(bot, data);
-  yield* parseResponses(bot, data);
+): Array<IterableIterator<BaseEvent>> {
+  return [
+    parseSwitchRoom(data),
+    parseUpdates(bot, data),
+    parseMessages(bot, data),
+    parseNotifications(bot, data),
+    parseResponses(bot, data)
+  ];
 }
