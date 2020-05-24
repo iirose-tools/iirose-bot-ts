@@ -54,7 +54,7 @@ export class UserProfile {
   public registrationTime: number;
   public onlineDuration: number;
 
-  private readonly userPromise: Promise<User>;
+  private user: User | null = null;
 
   constructor(bot: Bot, options: UserProfileOptions) {
     this.bot = bot;
@@ -81,12 +81,14 @@ export class UserProfile {
     this.communityRooms = options.communityRooms;
     this.registrationTime = options.registrationTime;
     this.onlineDuration = options.onlineDuration;
-
-    this.userPromise = this.getUserPromise();
   }
 
   public async getUser(): Promise<User> {
-    return this.userPromise;
+    if (!this.user) {
+      this.user = await this.getUserPromise();
+    }
+
+    return this.user;
   }
 
   private async getUserPromise(): Promise<User> {
