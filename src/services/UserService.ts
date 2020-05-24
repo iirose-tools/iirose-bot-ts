@@ -1,4 +1,5 @@
 import { Client } from '../Client';
+import { encodeEntities } from '../utils/entities';
 import { uniqueId } from '../utils/uniqueId';
 
 export interface SendPmOptions {
@@ -18,8 +19,17 @@ export class UserService {
     this.client.send(`=--${userId.toLowerCase()}`);
   }
 
+  public getUserProfileById(userId: string): void {
+    this.client.send(`+&${userId}`);
+  }
+
+  public getUserProfileByUsername(username: string): void {
+    this.client.send(`++${encodeEntities(username.toLowerCase())}`);
+  }
+
+  /** @deprecated */
   public getUserProfile(username: string): void {
-    this.client.send(`++${username.toLowerCase()}`);
+    this.getUserProfileByUsername(username);
   }
 
   public sendPm(options: SendPmOptions): void {

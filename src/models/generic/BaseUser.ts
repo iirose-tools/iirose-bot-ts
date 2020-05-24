@@ -1,5 +1,5 @@
-import { from } from 'rxjs';
-import { filter, flatMap, map, timeout } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { first, flatMap } from 'rxjs/operators';
 import { Bot } from '../../Bot';
 import { UserProfileResponseEvent } from '../../events';
 import { UserProfile } from '../user';
@@ -10,7 +10,11 @@ export abstract class BaseUser {
 
   private profile: UserProfile | null = null;
 
-  public async getProfile(): Promise<UserProfile> {
+  private static getProfileLock: BehaviorSubject<boolean> = new BehaviorSubject<
+    boolean
+  >(false);
+
+  public async getProfile(): Promise<UserProfile | null> {
     if (!this.profile) {
       this.profile = await this.getProfilePromise();
     }
@@ -18,18 +22,19 @@ export abstract class BaseUser {
     return this.profile;
   }
 
-  private async getProfilePromise(): Promise<UserProfile> {
-    await this.bot.getUserProfile(this.username);
-    return from(this.bot.awaitEvent([UserProfileResponseEvent]))
+  private async getProfilePromise(): Promise<UserProfile | null> {
+    return BaseUser.getProfileLock
       .pipe(
-        flatMap(event =>
-          from(event.userProfile.getUser()).pipe(
-            map(user => [event.userProfile, user] as const)
-          )
-        ),
-        filter(([, user]) => user.username === this.username),
-        timeout(10000),
-        map(([profile]) => profile)
+        first(locked => !locked),
+        flatMap(async () => {
+          await this.bot.getUserProfileByUsername(this.username);
+          const response = await this.bot.awaitEvent(
+            [UserProfileResponseEvent],
+            10000
+          );
+
+          return response ? response.userProfile : null;
+        })
       )
       .toPromise();
   }
