@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.3...v3.0.0) (2020-05-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* The methods `User#getProfile()` and
+`NotificationUser#getProfile()` have nullable return value now.
+The
+method `Bot#getUserProfile()` is marked as deprecated.
+
+### Features
+
+* Adapt to new user profile protocols ([b5d1c24](https://github.com/iirose-tools/iirose-bot-ts/commit/b5d1c244b0fcf406cdd3656e179737866c7e8c4e))
+
+
+### Bug Fixes
+
+* Avoid user data eager loading in `UserProfile` constructor ([f0d383c](https://github.com/iirose-tools/iirose-bot-ts/commit/f0d383c5e44ae1155053b0204a1ed0be673950f7))
+
 ### [2.3.3](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.2...v2.3.3) (2020-05-22)
 
 
