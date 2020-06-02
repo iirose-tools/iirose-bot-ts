@@ -156,6 +156,7 @@ function* parsePrivateMessage(
   data: string
 ): IterableIterator<BaseEvent> {
   const [
+    timestamp,
     userId,
     username,
     avatar,
@@ -171,6 +172,7 @@ function* parsePrivateMessage(
   if (anonymous === '@') {
     const message = new AnonymousPrivateMessage(bot, {
       id: messageId,
+      timestamp: parseInt(timestamp, 10),
       content: decodeEntities(content)
     });
 
@@ -187,6 +189,7 @@ function* parsePrivateMessage(
     const message = new PrivateMessage(bot, {
       id: messageId,
       user,
+      timestamp: parseInt(timestamp, 10),
       content: decodeEntities(content),
       color: decodeEntities(messageColor)
     });

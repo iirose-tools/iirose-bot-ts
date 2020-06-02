@@ -4,6 +4,7 @@ import { User } from '../user';
 export interface PrivateMessageOptions {
   id: string;
   user: User;
+  timestamp: number;
   content: string;
   color: string;
 }
@@ -13,6 +14,7 @@ export class PrivateMessage {
 
   public id: string;
   public user: User;
+  public timestamp: number;
   public content: string;
   public color: string;
 
@@ -21,6 +23,7 @@ export class PrivateMessage {
 
     this.id = options.id;
     this.user = options.user;
+    this.timestamp = options.timestamp;
     this.content = options.content;
     this.color = options.color;
   }
