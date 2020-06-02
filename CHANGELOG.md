@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v3.0.0...v3.1.0) (2020-06-02)
+
+
+### Features
+
+* Parse newly added private message timestamp ([120a851](https://github.com/iirose-tools/iirose-bot-ts/commit/120a8512162463d4af6a6c42bec339b0aa44a7b8))
+
 ## [3.0.0](https://github.com/iirose-tools/iirose-bot-ts/compare/v2.3.3...v3.0.0) (2020-05-24)
 
 
